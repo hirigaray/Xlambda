@@ -6,7 +6,7 @@
 #include "wm.h"
 
 int
-init_xcb()
+wm_init_xcb()
 {
 	conn = xcb_connect(NULL, NULL);
 	if (xcb_connection_has_error(conn))
@@ -15,7 +15,7 @@ init_xcb()
 }
 
 int
-kill_xcb()
+wm_kill_xcb()
 {
 	if (conn) {
 		xcb_disconnect(conn);
@@ -25,7 +25,7 @@ kill_xcb()
 }
 
 int
-is_alive(xcb_window_t w)
+wm_is_alive(xcb_window_t w)
 {
 	xcb_get_window_attributes_cookie_t c;
 	xcb_get_window_attributes_reply_t  *r;
@@ -41,7 +41,7 @@ is_alive(xcb_window_t w)
 }
 
 int
-is_mapped(xcb_window_t w)
+wm_is_mapped(xcb_window_t w)
 {
 	int ms;
 	xcb_get_window_attributes_cookie_t c;
@@ -60,7 +60,7 @@ is_mapped(xcb_window_t w)
 }
 
 int
-is_ignored(xcb_window_t wid)
+wm_is_ignored(xcb_window_t wid)
 {
 	int or;
 	xcb_get_window_attributes_cookie_t c;
@@ -79,7 +79,7 @@ is_ignored(xcb_window_t wid)
 }
 
 int
-get_screen()
+wm_get_screen()
 {
 	scrn = xcb_setup_roots_iterator(xcb_get_setup(conn)).data;
 	if (scrn == NULL)
@@ -88,7 +88,7 @@ get_screen()
 }
 
 int
-get_windows(xcb_window_t w, xcb_window_t **l)
+wm_get_windows(xcb_window_t w, xcb_window_t **l)
 {
 	uint32_t childnum = 0;
 	xcb_query_tree_cookie_t c;
@@ -110,7 +110,7 @@ get_windows(xcb_window_t w, xcb_window_t **l)
 }
 
 int
-get_attribute(xcb_window_t w, int attr)
+wm_get_attribute(xcb_window_t w, int attr)
 {
 	xcb_get_geometry_cookie_t c;
 	xcb_get_geometry_reply_t *r;
@@ -134,7 +134,7 @@ get_attribute(xcb_window_t w, int attr)
 }
 
 int
-get_cursor(int mode, uint32_t wid, int *x, int *y)
+wm_get_cursor(int mode, uint32_t wid, int *x, int *y)
 {
 	xcb_query_pointer_reply_t *r;
 	xcb_query_pointer_cookie_t c;
@@ -157,7 +157,7 @@ get_cursor(int mode, uint32_t wid, int *x, int *y)
 }
 
 int
-set_border(int width, int color, xcb_window_t win)
+wm_set_border(int width, int color, xcb_window_t win)
 {
 	uint32_t values[1];
 	int mask, retval = 0;
@@ -182,7 +182,7 @@ set_border(int width, int color, xcb_window_t win)
 }
 
 int
-set_cursor(int x, int y, int mode)
+wm_set_cursor(int x, int y, int mode)
 {
 	xcb_warp_pointer(conn, XCB_NONE, mode ? XCB_NONE : scrn->root,
 			0, 0, 0, 0, x, y);
@@ -190,19 +190,19 @@ set_cursor(int x, int y, int mode)
 }
 
 int
-is_listable(xcb_window_t w, int mask)
+wm_is_listable(xcb_window_t w, int mask)
 {
 	if ((mask & LIST_ALL)
-		|| (!is_mapped (w) && mask & LIST_HIDDEN)
-		|| ( is_ignored(w) && mask & LIST_IGNORE)
-		|| ( is_mapped (w) && !is_ignored(w) && mask == 0))
+		|| (!wm_is_mapped (w) && mask & LIST_HIDDEN)
+		|| ( wm_is_ignored(w) && mask & LIST_IGNORE)
+		|| ( wm_is_mapped (w) && !wm_is_ignored(w) && mask == 0))
 		return 1;
 
 	return 0;
 }
 
 int
-teleport(xcb_window_t wid, int x, int y, int w, int h)
+wm_teleport(xcb_window_t wid, int x, int y, int w, int h)
 {
 	uint32_t values[4];
 	uint32_t mask =   XCB_CONFIG_WINDOW_X
@@ -220,18 +220,18 @@ teleport(xcb_window_t wid, int x, int y, int w, int h)
 }
 
 int
-move(xcb_window_t wid, int mode, int x, int y)
+wm_move(xcb_window_t wid, int mode, int x, int y)
 {
 	int curx, cury, curw, curh, curb;
 
-	if (!is_mapped(wid) || wid == scrn->root)
+	if (!wm_is_mapped(wid) || wid == scrn->root)
 		return -1;
 	
-	curb = get_attribute(wid, ATTR_B);
-	curx = get_attribute(wid, ATTR_X);
-	cury = get_attribute(wid, ATTR_Y);
-	curw = get_attribute(wid, ATTR_W);
-	curh = get_attribute(wid, ATTR_H);
+	curb = wm_get_attribute(wid, ATTR_B);
+	curx = wm_get_attribute(wid, ATTR_X);
+	cury = wm_get_attribute(wid, ATTR_Y);
+	curw = wm_get_attribute(wid, ATTR_W);
+	curh = wm_get_attribute(wid, ATTR_H);
 
 	if (mode == ABSOLUTE) {
 		x -= curx + curw /2;
@@ -252,12 +252,12 @@ move(xcb_window_t wid, int mode, int x, int y)
 	else if (y > scrn->height_in_pixels - curh - 2*curb)
 		y = scrn->height_in_pixels - curh - 2*curb;
 
-	teleport(wid, x, y, curw, curh);
+	wm_teleport(wid, x, y, curw, curh);
 	return 1;
 }
 
 int
-remap(xcb_window_t wid, int mode)
+wm_remap(xcb_window_t wid, int mode)
 {
 	switch (mode) {
 	case MAP:
@@ -267,7 +267,7 @@ remap(xcb_window_t wid, int mode)
 		xcb_unmap_window(conn, wid);
 		break;
 	case TOGGLE:
-		if (is_mapped(wid))
+		if (wm_is_mapped(wid))
 			xcb_unmap_window(conn, wid);
 		else
 			xcb_map_window(conn, wid);
@@ -278,18 +278,18 @@ remap(xcb_window_t wid, int mode)
 }
 
 int
-resize(xcb_window_t wid, int mode, int w, int h)
+wm_resize(xcb_window_t wid, int mode, int w, int h)
 {
 	int curx, cury, curw, curh, curb;
 
-	if (!is_mapped(wid) || wid == scrn->root)
+	if (!wm_is_mapped(wid) || wid == scrn->root)
 		return -1;
 	
-	curb = get_attribute(wid, ATTR_B);
-	curx = get_attribute(wid, ATTR_X);
-	cury = get_attribute(wid, ATTR_Y);
-	curw = get_attribute(wid, ATTR_W);
-	curh = get_attribute(wid, ATTR_H);
+	curb = wm_get_attribute(wid, ATTR_B);
+	curx = wm_get_attribute(wid, ATTR_X);
+	cury = wm_get_attribute(wid, ATTR_Y);
+	curw = wm_get_attribute(wid, ATTR_W);
+	curh = wm_get_attribute(wid, ATTR_H);
 
 	if (mode == ABSOLUTE) {
 		w -= curx + 2*curb;
@@ -313,12 +313,12 @@ resize(xcb_window_t wid, int mode, int w, int h)
 	if (cury + h > scrn->height_in_pixels)
 		h = scrn->height_in_pixels - cury - 2*curb;
 
-	teleport(wid, curx, cury, w, h);
+	wm_teleport(wid, curx, cury, w, h);
 	return 1;
 }
 
 int
-restack(xcb_window_t wid, uint32_t mode)
+wm_restack(xcb_window_t wid, uint32_t mode)
 {
 	uint32_t values[1] = { mode };
 	xcb_configure_window(conn, wid, XCB_CONFIG_WINDOW_STACK_MODE, values);
@@ -327,7 +327,7 @@ restack(xcb_window_t wid, uint32_t mode)
 }
 
 int
-set_focus(xcb_window_t wid)
+wm_set_focus(xcb_window_t wid)
 {
 	xcb_set_input_focus(conn, XCB_INPUT_FOCUS_POINTER_ROOT, wid,
 	                    XCB_CURRENT_TIME);
