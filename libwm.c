@@ -319,7 +319,7 @@ wm_resize(xcb_window_t wid, int mode, int w, int h)
 		w = scrn->width_in_pixels - curx - 2*curb;
 
 	if (h < 0)
-		h = cury;
+		h = curh;
 	if (cury + h > scrn->height_in_pixels)
 		h = scrn->height_in_pixels - cury - 2*curb;
 
