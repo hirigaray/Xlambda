@@ -122,11 +122,21 @@ wm_get_attribute(xcb_window_t w, int attr)
 		return -1;
 
 	switch (attr) {
-		case ATTR_X: attr = r->x; break;
-		case ATTR_Y: attr = r->y; break;
-		case ATTR_W: attr = r->width; break;
-		case ATTR_H: attr = r->height; break;
-		case ATTR_B: attr = r->border_width; break;
+	case ATTR_X:
+		attr = r->x;
+		break;
+	case ATTR_Y:
+		attr = r->y;
+		break;
+	case ATTR_W:
+		attr = r->width;
+		break;
+	case ATTR_H:
+		attr = r->height;
+		break;
+	case ATTR_B:
+		attr = r->border_width;
+		break;
 	}
 
 	free(r);
