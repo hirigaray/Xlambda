@@ -243,12 +243,12 @@ wm_move(xcb_window_t wid, int mode, int x, int y)
 	curw = wm_get_attribute(wid, ATTR_W);
 	curh = wm_get_attribute(wid, ATTR_H);
 
-	if (mode == ABSOLUTE) {
-		x -= curx + curw /2;
-		y -= cury + curh /2;
-	} else {
+	if (mode == RELATIVE) {
 		x += curx;
 		y += cury;
+	} else  {
+		x -= curw;
+		y -= curh;
 	}
 
 	/* the following prevent windows from moving off the screen */
@@ -301,12 +301,12 @@ wm_resize(xcb_window_t wid, int mode, int w, int h)
 	curw = wm_get_attribute(wid, ATTR_W);
 	curh = wm_get_attribute(wid, ATTR_H);
 
-	if (mode == ABSOLUTE) {
-		w -= curx + 2*curb;
-		h -= cury + 2*curb;
-	} else {
+	if (mode == RELATIVE) {
 		w += curw;
 		h += curh;
+	} else {
+		w -= curx;
+		h -= cury;
 	}
 
 	/*
