@@ -2,7 +2,7 @@
 #define __LIBWM_H__
 
 /*
- * Varialbes used to hold the connection to the X server, and the first screen
+ * Variables used to hold the connection to the X server, and the first screen
  * of this connection. Both have to be defined as `extern`.
  */
 extern xcb_connection_t *conn;
