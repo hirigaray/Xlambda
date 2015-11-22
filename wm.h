@@ -104,6 +104,12 @@ int wm_get_screen();
 int wm_get_windows(xcb_window_t wid, xcb_window_t **list);
 
 /*
+ * Get focused window identifier
+ * returns -1 on error
+ */
+xcb_window_t wm_get_focus(void);
+
+/*
  * Retrive the value of an attribute for a specific windows.
  * The possible values for the attributes are:
  * 	ATTR_W - width

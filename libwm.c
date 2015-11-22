@@ -109,6 +109,24 @@ wm_get_windows(xcb_window_t w, xcb_window_t **l)
 	return childnum;
 }
 
+xcb_window_t
+wm_get_focus(void)
+{
+	xcb_window_t w = 0;
+	xcb_get_input_focus_cookie_t c;
+	xcb_get_input_focus_reply_t *r;
+
+	c = xcb_get_input_focus(conn);
+	r = xcb_get_input_focus_reply(conn, c, NULL);
+	if (r == NULL)
+		return -1;
+
+	w = r->focus;
+	free(r);
+	return w;
+}
+
+
 int
 wm_get_attribute(xcb_window_t w, int attr)
 {
