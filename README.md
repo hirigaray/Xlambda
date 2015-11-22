@@ -12,6 +12,7 @@ Here is the full list of all the function you can use from `libwm`:
     wm_is_ignored(wid);
     wm_is_listable(wid, mask);
     wm_is_mapped(wid);
+    wm_get_focus();
     wm_get_screen();
     wm_get_windows(wid, **list);
     wm_get_attribute(wid, attr);
