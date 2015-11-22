@@ -284,6 +284,16 @@ wm_move(xcb_window_t wid, int mode, int x, int y)
 	return 1;
 }
 
+void
+wm_set_override(xcb_window_t w, int or)
+{
+	uint32_t mask = XCB_CW_OVERRIDE_REDIRECT;
+	uint32_t val[] = { or };
+
+	xcb_change_window_attributes(conn, w, mask, val);
+}
+
+
 int
 wm_remap(xcb_window_t wid, int mode)
 {

@@ -149,6 +149,12 @@ int wm_set_focus(xcb_window_t wid);
 int wm_set_cursor(int x, int y, int mode);
 
 /*
+ * set override_redirect on window
+ * args:	wid, {0,1}
+ */
+void wm_set_override(xcb_window_t, int);
+
+/*
  * Teleport a window to the given position.
  */
 int wm_teleport(xcb_window_t wid, int w, int h, int x, int y);

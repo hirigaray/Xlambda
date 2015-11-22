@@ -20,6 +20,7 @@ Here is the full list of all the function you can use from `libwm`:
     wm_set_border(width, color, wid);
     wm_set_focus(wid);
     wm_set_cursor(x, y, mode);
+    wm_set_override(wid, mode);
     wm_teleport(wid, w, h, x, y);
     wm_move(wid, mode, x, y);
     wm_remap(wid, mode);
