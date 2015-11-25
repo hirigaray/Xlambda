@@ -264,9 +264,6 @@ wm_move(xcb_window_t wid, int mode, int x, int y)
 	if (mode == RELATIVE) {
 		x += curx;
 		y += cury;
-	} else  {
-		x -= curw;
-		y -= curh;
 	}
 
 	/* the following prevent windows from moving off the screen */
