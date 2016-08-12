@@ -162,6 +162,34 @@ wm_get_attribute(xcb_window_t w, int attr)
 }
 
 int
+wm_get_atom_string(xcb_window_t wid, xcb_atom_t atom, char **value)
+{
+	int len;
+	xcb_get_property_cookie_t cookie;
+	xcb_get_property_reply_t *reply;
+
+	cookie = xcb_get_property(conn, 0, wid, atom, XCB_ATOM_STRING, 0, 0);
+	reply = xcb_get_property_reply(conn, cookie, NULL);
+
+	if (reply == NULL) {
+		free(reply);
+		*value = NULL;
+		return 1;
+	}
+
+	len = xcb_get_property_value_length(reply);
+	*value = realloc(value, len);
+
+	if (value == NULL)
+		return 1;
+
+	*value = (char*)xcb_get_property_value(reply);
+	free(reply);
+
+	return 0;
+}
+
+int
 wm_get_cursor(int mode, uint32_t wid, int *x, int *y)
 {
 	xcb_query_pointer_reply_t *r;
@@ -254,7 +282,7 @@ wm_move(xcb_window_t wid, int mode, int x, int y)
 
 	if (!wm_is_mapped(wid) || wid == scrn->root)
 		return -1;
-	
+
 	curb = wm_get_attribute(wid, ATTR_B);
 	curx = wm_get_attribute(wid, ATTR_X);
 	cury = wm_get_attribute(wid, ATTR_Y);
@@ -281,13 +309,15 @@ wm_move(xcb_window_t wid, int mode, int x, int y)
 	return 1;
 }
 
-void
+int
 wm_set_override(xcb_window_t w, int or)
 {
 	uint32_t mask = XCB_CW_OVERRIDE_REDIRECT;
 	uint32_t val[] = { or };
 
 	xcb_change_window_attributes(conn, w, mask, val);
+
+	return 1;
 }
 
 
@@ -319,7 +349,7 @@ wm_resize(xcb_window_t wid, int mode, int w, int h)
 
 	if (!wm_is_mapped(wid) || wid == scrn->root)
 		return -1;
-	
+
 	curb = wm_get_attribute(wid, ATTR_B);
 	curx = wm_get_attribute(wid, ATTR_X);
 	cury = wm_get_attribute(wid, ATTR_Y);
@@ -368,4 +398,13 @@ wm_set_focus(xcb_window_t wid)
 	                    XCB_CURRENT_TIME);
 	xcb_flush(conn);
 	return 1;
+}
+
+int
+wm_reg_event(xcb_window_t wid, uint32_t mask)
+{
+	uint32_t val[] = { mask };
+
+	xcb_change_window_attributes(conn, wid, XCB_CW_EVENT_MASK, val);
+	return 0;
 }

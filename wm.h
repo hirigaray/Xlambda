@@ -92,6 +92,12 @@ int wm_is_listable(xcb_window_t wid, int mask);
 int wm_is_mapped(xcb_window_t wid);
 
 /*
+ * Fills the given pointer with the value of the atom for the given window
+ * Returns 1 if a value can't be retrieved
+ */
+int wm_get_atom_string(xcb_window_t wid, xcb_atom_t atom, char **value);
+
+/*
  * Get the first screen, and set the `scrn` global variable accordingly.
  */
 int wm_get_screen();
@@ -152,7 +158,7 @@ int wm_set_cursor(int x, int y, int mode);
  * set override_redirect on window
  * args:	wid, {0,1}
  */
-void wm_set_override(xcb_window_t, int);
+int wm_set_override(xcb_window_t, int);
 
 /*
  * Teleport a window to the given position.
@@ -196,5 +202,11 @@ int wm_resize(xcb_window_t wid, int mode, int w, int h);
  * 	XCB_STACK_MODE_OPPOSITE
  */
 int wm_restack(xcb_window_t wid, uint32_t mode);
+
+/*
+ * Register the given event(s) on the window.
+ * Multiple events can be registered by ORing them together
+ */
+int wm_reg_event(xcb_window_t wid, uint32_t mask);
 
 #endif /* __LIBWM_H__ */
