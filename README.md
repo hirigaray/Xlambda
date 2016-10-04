@@ -4,7 +4,7 @@ A small library for X window manipulation
 
 ## documentation
 
-Here is the full list of all the function you can use from `libwm`:
+Here is the full list of all the functions provided by `libwm`:
 
     wm_init_xcb();
     wm_kill_xcb();
@@ -33,13 +33,13 @@ now.
 ## installation
 
 `libwm` provides two files: libwm.a and wm.h.  
-You can build/install them as follow:
+You can build/install them as follows:
 
     $ make
     # make install
 
 The makefile supports 2 macros: DESTDIR and PREFIX.
 
-Then to link your program against it, compile it as follow:
+To link your program against it, compile it as follows:
 
     cc pgm.c -lwm -o pgm
