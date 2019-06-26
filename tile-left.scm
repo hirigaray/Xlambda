@@ -1,0 +1,1 @@
+(wm/teleport! (wm/get-focused) 13 13 640 640)

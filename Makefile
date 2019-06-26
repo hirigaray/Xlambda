@@ -1,30 +1,13 @@
-include config.mk
+CC      = cc
+LD      = $(CC)
 
-LIB = libwm.a
-HDR = wm.h
+CFLAGS  = -fPIC -Os
+CFLAGS += -Wall -Wno-unused-function
+CFLAGS += -I/usr/local/include/guile/2.2 -I/usr/local/include -pthread
+LDFLAGS = -L/usr/local/lib -pthread -lguile-2.2 -lgc
+CFLAGS += -I/usr/X11R6/include
+LDFLAGS += -L/usr/X11R6/lib -lxcb
 
-.POSIX:
-.SUFFIXES: .a .o
 
-all: $(LIB)
-
-.o.a:
-	@echo "AR $@"
-	@$(AR) rcs $@ $< 
-
-.c.o:
-	@echo "CC $<"
-	@$(CC) -c $< $(CFLAGS)
-
-install: $(LIB) $(HDR)
-	mkdir -p $(DESTDIR)$(PREFIX)/lib
-	mkdir -p $(DESTDIR)$(PREFIX)/include
-	cp -f $(LIB) $(DESTDIR)$(PREFIX)/lib/
-	cp -f $(HDR) $(DESTDIR)$(PREFIX)/include/
-
-uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/lib/$(LIB)
-	rm -f $(DESTDIR)$(PREFIX)/include/$(HDR) 
-
-clean :
-	rm -f $(LIB)
+all:
+	$(CC) $(CFLAGS) $(LDFLAGS) Xlambda.c -o Xlambda
