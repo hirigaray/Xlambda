@@ -99,7 +99,7 @@ wm_list_windows()
 	c = xcb_query_tree(conn, scrn->root);
 	r = xcb_query_tree_reply(conn, c, NULL);
 	if (r == NULL)
-		return scm_from_bool(1);
+		return SCM_BOOL_F;
 
 	xcb_window_t *x_window_list = xcb_query_tree_children(r);
 
@@ -130,10 +130,10 @@ wm_exists_p(SCM wid)
 	r = xcb_get_window_attributes_reply(conn, c, NULL);
 
 	if (r == NULL)
-		return scm_from_bool(0);
+		return SCM_BOOL_T;
 
 	free(r);
-	return scm_from_bool(1);
+	return SCM_BOOL_F;
 }
 
 /* Teleport a window to the given position. */
@@ -153,7 +153,7 @@ wm_teleport(SCM wid, SCM x, SCM y, SCM width, SCM height)
 	xcb_configure_window(conn, w, mask, values);
 
 	xcb_flush(conn);
-	return scm_from_bool(1);
+	return SCM_BOOL_F;
 	/* todo: return old geometry, maybe on version 0.2, so things like
 	fullscreening/returning to old position are easier */
 }
@@ -169,7 +169,7 @@ wm_get_focused_window()
 	c = xcb_get_input_focus(conn);
 	r = xcb_get_input_focus_reply(conn, c, NULL);
 	if (r == NULL)
-		return scm_from_bool(1);
+		return SCM_BOOL_F;
 
 	SCM fwid = scm_from_uint32(r->focus);
 	free(r);
@@ -189,7 +189,7 @@ wm_window_x(SCM s_wid)
 	c = xcb_get_geometry(conn, wid);
 	r = xcb_get_geometry_reply(conn, c, NULL);
 	if (r == NULL)
-		return scm_from_bool(0);
+		return SCM_BOOL_T;
 
 	SCM x = scm_from_int(r->x);
 	free(r);
@@ -208,7 +208,7 @@ wm_window_y(SCM s_wid)
 	c = xcb_get_geometry(conn, wid);
 	r = xcb_get_geometry_reply(conn, c, NULL);
 	if (r == NULL)
-		return scm_from_bool(0);
+		return SCM_BOOL_T;
 
 	SCM y = scm_from_int(r->y);
 	free(r);
@@ -227,7 +227,7 @@ wm_window_w(SCM s_wid)
 	c = xcb_get_geometry(conn, wid);
 	r = xcb_get_geometry_reply(conn, c, NULL);
 	if (r == NULL)
-		return scm_from_bool(0);
+		return SCM_BOOL_T;
 
 	SCM w = scm_from_int(r->width);
 	free(r);
@@ -246,7 +246,7 @@ wm_window_h(SCM s_wid)
 	c = xcb_get_geometry(conn, wid);
 	r = xcb_get_geometry_reply(conn, c, NULL);
 	if (r == NULL)
-		return scm_from_bool(0);
+		return SCM_BOOL_T;
 
 	SCM h = scm_from_int(r->height);
 	free(r);
@@ -265,7 +265,7 @@ wm_window_b(SCM s_wid)
 	c = xcb_get_geometry(conn, wid);
 	r = xcb_get_geometry_reply(conn, c, NULL);
 	if (r == NULL)
-		return scm_from_bool(0);
+		return SCM_BOOL_T;
 
 	SCM b = scm_from_int(r->border_width);
 	free(r);
@@ -284,7 +284,7 @@ wm_window_m(SCM s_wid)
 	c = xcb_get_window_attributes(conn, wid);
 	r = xcb_get_window_attributes_reply(conn, c, NULL);
 	if (r == NULL)
-		return scm_from_bool(0);
+		return SCM_BOOL_T;
 
 	SCM m = scm_from_int(r->map_state);
 	free(r);
@@ -329,7 +329,7 @@ wm_get_cursor_pos()
 	c = xcb_query_pointer(conn, scrn->root);
 	r = xcb_query_pointer_reply(conn, c, NULL);
 	if (r == NULL)
-		return scm_from_bool(0);
+		return SCM_BOOL_T;
 
 	SCM xypos;
 
@@ -383,7 +383,7 @@ wm_set_cursor_pos(SCM s_x, SCM s_y)
 	int x = scm_to_int(s_x);
 	int y = scm_to_int(s_y);
 	xcb_warp_pointer(conn, XCB_NONE, scrn->root, 0, 0, 0, 0, x, y);
-	return scm_from_bool(1);
+	return SCM_BOOL_F;
 }
 
 static SCM
@@ -397,7 +397,7 @@ wm_set_override(SCM s_wid, SCM s_mode)
 
 	xcb_change_window_attributes(conn, wid, mask, val);
 
-	return scm_from_bool(1);
+	return SCM_BOOL_F;
 }
 
 /* Map a window */
@@ -430,5 +430,5 @@ wm_set_focused_window(SCM s_wid)
 	/* Bring window to the front */
 	xcb_configure_window(conn, wid, XCB_STACK_MODE_ABOVE, 0);
 	xcb_flush(conn);
-	return scm_from_bool(1);
+	return SCM_BOOL_F;
 }
