@@ -5,13 +5,13 @@ A window manager for X that is extensible in Guile Scheme
 # How to use this
 Xlambda currently ships with the following basic functions:
 
-`  (wm/window/x)`
+`  (wm/window/x wid)`
 Returns the x coordinate of the top-leftmost pixel of a window (including borders).
 
-`  (wm/window/y)`
+`  (wm/window/y wid)`
 Returns the y coordinate of the top-leftmost pixel of a window (including borders).
 
-`  (wm/window/w) wid`
+`  (wm/window/w wid)`
 Returns a window's width, in pixels.
 
 `  (wm/window/h wid)`
