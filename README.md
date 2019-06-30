@@ -65,10 +65,10 @@ I haven't tested this under Linux yet, so any help in making the Makefile more p
 
 ## Why?
 This is serving as an experiment in learning what the fundamental operations of window management
-are. As far as I understand so far, `(wm/teleport!)`` seems to be the most powerful operation,
+are. So far, as I understand this, `(wm/teleport!)` seems to be the most powerful operation,
 because all other functions related to window management can be implenmented on top of it.
 
-All other functions that have existed in version 0.1 are functions mostly required to get the
+All the other functions that have shipped in V1 are functions mostly required to get the
 information needed to make this an useful tool, and less of a thought experiment.
 
 On the other hand, if Xlambda is looking to be a practical window manager, the "most abstract"
@@ -83,7 +83,7 @@ unique of an idea, but I haven't been able to find work on this, in these terms.
 Xlambda uses reverse Kelvin versioning, that is to say, the bigger the version number is,
 the less "frozen" it is, and the more versatile it becomes.
 * V1 `(current version)`
-Ship with basic functionality, but enough to script whatever window layouts are imaginable,
+Ship with basic functionality, but enough to program whatever window layouts are imaginable,
 due to `(wm/teleport!)`
 * V2
 Ship with more example functions, namely, various examples of tiling functions.
@@ -94,7 +94,7 @@ By this point, Xlambda should be easily usable as a standalone window manager.
 Start using a remote REPL, so Xlambda would be a daemon, controllable by any Guile instance.
 * ...
 * V273
-Hopefully, by this point, we'll have had subsumed every single window manager in existence,
+Hopefully, by this point, we'll have subsumed every single window manager in existence,
 due to the formalization of the Window Management Calculus(tm)
 
 ## Support this project!
