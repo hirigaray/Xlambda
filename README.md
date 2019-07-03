@@ -35,7 +35,7 @@ Unmap a window.
 `  (wm/get-focused)`
 Get the currently focused window's ID.
 
-`  (wm/set-focused wid)`    
+`  (wm/set-focused wid)`
 Get the currently focused window's ID.
 
 `  (wm/get-cursor-pos)`
@@ -47,7 +47,7 @@ Set the position for the mouse cursor.
 `  (wm/list-windows)`
 List all windows open, including hidden ones (this behavior will be changed).
 
-`  (wm/exists? wid)`        
+`  (wm/exists? wid)`
 Return #t if the given window exists, #f otherwise.
 
 `  (wm/teleport! wid x y w h)`
@@ -58,10 +58,6 @@ window manager in order to be useful. However, you can already create all sorts 
 management scripts with Xlambda! It already ships with a few. Load them with `Xlambda -l examples/definitions.scm`
 
 See the following sections for more details of future plans.
-
-## Help needed!
-I wrote Xlambda under OpenBSD, and the Makefile should work as long as you have guile2.2 installed.
-I haven't tested this under Linux yet, so any help in making the Makefile more portable is greatly appreciated!
 
 ## Why?
 This is serving as an experiment in learning what the fundamental operations of window management
@@ -103,7 +99,7 @@ towards me continuing to work on these projects.
 
 Here's the link: https://patreon.com/lmilon
 
-Also, consider supporting the Guile project! See https://www.gnu.org/software/guile/contribute/ 
+Also, consider supporting the Guile project! See https://www.gnu.org/software/guile/contribute/
 for more information.
 
 ## Thanks
