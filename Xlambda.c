@@ -33,6 +33,10 @@ static SCM wm_window_b(SCM s_wid);
 static SCM wm_window_m(SCM s_wid);
 static SCM wm_window_i(SCM s_wid);
 
+/* New functions. */
+
+static SCM wm_get_root_wid();	/* get "correct" root window identifier */
+
 static void*
 register_functions (void* data)
 {
@@ -55,6 +59,8 @@ register_functions (void* data)
 	scm_c_define_gsubr("wm/list-windows",    0, 0, 0, &wm_list_windows);
 	scm_c_define_gsubr("wm/exists?",         1, 0, 0, &wm_exists_p);
 	scm_c_define_gsubr("wm/teleport!",       5, 0, 0, &wm_teleport);
+	/* New functions, again. */
+	scm_c_define_gsubr("wm/get-root-wid",    0, 0, 0, &wm_get_root_wid);
 	return NULL;
 }
 
@@ -432,3 +438,13 @@ wm_set_focused_window(SCM s_wid)
 	xcb_flush(conn);
 	return SCM_BOOL_T;
 }
+
+/* New functions. */
+static SCM
+wm_get_root_wid()
+{
+	SCM rwid = scm_from_uint32(scrn->root);
+	return rwid;
+}
+
+
