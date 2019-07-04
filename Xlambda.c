@@ -53,7 +53,7 @@ register_functions (void* data)
 	scm_c_define_gsubr("wm/window/map",      1, 0, 0, &wm_set_focused_window);
 	scm_c_define_gsubr("wm/window/unmap",    1, 0, 0, &wm_set_focused_window);
 	scm_c_define_gsubr("wm/get-focused",     0, 0, 0, &wm_get_focused_window);
-	scm_c_define_gsubr("wm/set-focused",     1, 0, 0, &wm_set_focused_window);
+	scm_c_define_gsubr("wm/set-focused!",    1, 0, 0, &wm_set_focused_window);
 	scm_c_define_gsubr("wm/get-cursor-pos",  0, 0, 0, &wm_get_cursor_pos);
 	scm_c_define_gsubr("wm/set-cursor-pos!", 2, 0, 0, &wm_set_cursor_pos);
 	scm_c_define_gsubr("wm/list-windows",    0, 0, 0, &wm_list_windows);

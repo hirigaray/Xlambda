@@ -35,7 +35,7 @@ Unmap a window.
 `  (wm/get-focused)`
 Get the currently focused window's ID.
 
-`  (wm/set-focused wid)`
+`  (wm/set-focused! wid)`
 Get the currently focused window's ID.
 
 `  (wm/get-cursor-pos)`
