@@ -103,6 +103,8 @@ Also, consider supporting the Guile project! See https://www.gnu.org/software/gu
 for more information.
 
 ## Thanks
+* Special thanks to Danny O'Brien, for supporting me on Patreon!
+
 * dcat and z3bra for making libwm, upon which Xlambda was based
 * the Guile developers, for making this FFI so easy to use!
 * You, for trying this out!
