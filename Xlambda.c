@@ -33,9 +33,9 @@ static SCM wm_window_b(SCM s_wid);
 static SCM wm_window_m(SCM s_wid);
 static SCM wm_window_i(SCM s_wid);
 
-/* New functions. */
-
-static SCM wm_get_root_wid();	/* get "correct" root window identifier */
+/* TODO: Change Xlambda so that the id 0 is always the root window,
+ * so this becomes unnecessary. */
+static SCM wm_get_root_wid();
 
 static void*
 register_functions (void* data)
@@ -439,7 +439,7 @@ wm_set_focused_window(SCM s_wid)
 	return SCM_BOOL_T;
 }
 
-/* New functions. */
+/* Get "correct" root window identifier */
 static SCM
 wm_get_root_wid()
 {

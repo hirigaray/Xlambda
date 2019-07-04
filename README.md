@@ -53,6 +53,9 @@ Return #t if the given window exists, #f otherwise.
 `  (wm/teleport! wid x y w h)`
 Teleport a window to the x and y coordinates, with a width w, and a height h.
 
+` (wm/get-root-wid)`
+Returns the wid for the X root window.
+
 As there is currently no mouse support, Xlambda must be used with another
 window manager in order to be useful. However, you can already create all sorts of window
 management scripts with Xlambda! It already ships with a few. Load them with `Xlambda -l examples/definitions.scm`
