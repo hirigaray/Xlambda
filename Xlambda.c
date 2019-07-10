@@ -311,14 +311,7 @@ wm_window_i(SCM s_wid)
 		return SCM_BOOL_F; /* this is probably the root window
                            * in any case, it shouldn't be handled. */
 
-	/* override_redirect is 1 when true, and 2 when false */
-	SCM i;
-	switch (r->override_redirect) {
-	case 0:
-		i = SCM_BOOL_F;
-	case 1:
-		i = SCM_BOOL_T;
-	}
+	SCM i = scm_from_bool(r->override_redirect);
 
 	free(r);
 	return i;
