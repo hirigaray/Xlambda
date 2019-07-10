@@ -1,6 +1,7 @@
-(define screen-width 1366)
-(define screen-height 768)
-(define border-width 4)
+(define root-wid (car (wm/list-windows)))
+(define screen-width (wm/window/w root-wid))
+(define screen-height (wm/window/h root-wid))
+(define border-width 1)
 (define gap-size 16)
 
 (define wm/fullscreen-current!
@@ -34,5 +35,5 @@
         window-width
         window-height))))
 
-; Even further abstractions can be built, these are just simple 
+; Even further abstractions can be built, these are just simple
 ; examples of how powerful and legible window management with Scheme can be.
