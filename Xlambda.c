@@ -33,10 +33,6 @@ static SCM wm_window_b(SCM s_wid);
 static SCM wm_window_m(SCM s_wid);
 static SCM wm_window_i(SCM s_wid);
 
-/* TODO: Change Xlambda so that the id 0 is always the root window,
- * so this becomes unnecessary. */
-static SCM wm_get_root_wid();
-
 static void*
 register_functions (void* data)
 {
@@ -59,8 +55,6 @@ register_functions (void* data)
 	scm_c_define_gsubr("wm/list-windows",    0, 0, 0, &wm_list_windows);
 	scm_c_define_gsubr("wm/exists?",         1, 0, 0, &wm_exists_p);
 	scm_c_define_gsubr("wm/teleport!",       5, 0, 0, &wm_teleport);
-	/* New functions, again. */
-	scm_c_define_gsubr("wm/get-root-wid",    0, 0, 0, &wm_get_root_wid);
 	return NULL;
 }
 
@@ -96,8 +90,11 @@ static SCM
 wm_list_windows()
 {
 	xcb_window_t x_window;
-	/* Initialize the window list as a Guile empty list */
-	SCM s_window_list = SCM_EOL;
+
+	SCM s_root_wid = scm_from_uint32(scrn->root);
+
+	/* Initialize the window list with the root window ID */
+	SCM s_window_list = scm_list_1(s_root_wid);
 
 	xcb_query_tree_cookie_t c;
 	xcb_query_tree_reply_t *r;
@@ -110,7 +107,9 @@ wm_list_windows()
 	xcb_window_t *x_window_list = xcb_query_tree_children(r);
 
 	/* wi = window index */
-	for (int wi = 0; wi <= r->children_len; wi++) {
+	/* children_len - 1 is due to the fact that the wids are in stacking order,
+	 * and the last window is supposedly the root window, but that is not the actual case */
+	for (int wi = 0; wi <= r->children_len - 1; wi++) {
 		x_window = x_window_list[wi];
 		SCM s_window = scm_from_uint32(x_window);
 		/* Put the window ID into a list */
@@ -438,13 +437,3 @@ wm_set_focused_window(SCM s_wid)
 	xcb_flush(conn);
 	return SCM_BOOL_T;
 }
-
-/* Get "correct" root window identifier */
-static SCM
-wm_get_root_wid()
-{
-	SCM rwid = scm_from_uint32(scrn->root);
-	return rwid;
-}
-
-
