@@ -5,60 +5,74 @@ A window manager for X that is extensible in Guile Scheme
 # How to use this
 Xlambda currently ships with the following basic functions:
 
-`  (wm/window/x wid)`
-Returns the x coordinate of the top-leftmost pixel of a window (including borders).
+	`(window/list)`
 
-`  (wm/window/y wid)`
-Returns the y coordinate of the top-leftmost pixel of a window (including borders).
+	List all open windows, including hidden windows and unmapped windows.
 
-`  (wm/window/w wid)`
-Returns a window's width, in pixels.
+	`(window/exists? wid)`
 
-`  (wm/window/h wid)`
-Returns a window's height, in pixels.
+	Check if a window exists.
 
-`  (wm/window/b wid)`
-Returns a window's border's width, in pixels.
+	`(window/title? wid)`
 
-`  (wm/window/m wid)`
-Returns #t, if a window is mapped by the window manager, or #f otherwise.
+	Return the title of a window.
 
-`  (wm/window/i wid)`
-Returns #t, if a window is ignored by the window manager, or #f otherwise.
+	`(window/border-width? wid)`
 
-`  (wm/window/map wid)`
-Map a window.
+	Return the border width of a window.
 
-`  (wm/window/unmap wid)`
-Unmap a window.
+	`(window/hidden? wid)`
 
-`  (wm/get-focused)`
-Get the currently focused window's ID.
+	Check if a window is hidden.
 
-`  (wm/set-focused! wid)`
-Get the currently focused window's ID.
+	`(window/hide! wid)`
 
-`  (wm/get-cursor-pos)`
-Get the current position for the mouse cursor, as a list with the coordinates as (x y).
+	Hide a window.
 
-`  (wm/set-cursor-pos! x y)`
-Set the position for the mouse cursor.
+	`(window/show! wid)`
 
-`  (wm/list-windows)`
-List all windows open, including hidden ones (this behavior will be changed).
+	Show a window.
 
-`  (wm/exists? wid)`
-Return #t if the given window exists, #f otherwise.
+	`(window/ignored? wid)`
 
-`  (wm/teleport! wid x y w h)`
-Teleport a window to the x and y coordinates, with a width w, and a height h.
+	Check if a window is ignored by the window manager.
 
-` (wm/get-root-wid)`
-Returns the wid for the X root window.
+	`(window/ignore! wid)`
+
+	Ignore a window.
+
+	`(window/manage! wid)`
+
+	Unignore a window.
+
+	`(window/current-id?)`
+
+	Return the currently focused window ID.
+
+	`(window/focus! wid)`
+
+	Focus a window.
+
+	`(window/geometry? wid)`
+
+	Get the geometry of a window. This returns 4 values, x position, y position, width, height.
+
+	`(window/teleport! wid x y w h)`
+
+	Teleport a window to the given coordinates.
+
+	`(cursor/position?)`
+
+	Return the current position of the mouse cursor. This returns 2 values, x position, y position.
+
+	`(cursor/position!)`
+
+	Set the position of the mouse cursor.
 
 As there is currently no mouse support, Xlambda must be used with another
 window manager in order to be useful. However, you can already create all sorts of window
-management scripts with Xlambda! It already ships with a few. Load them with `Xlambda -l examples/definitions.scm`
+management scripts with Xlambda! It already ships with a few.
+Load them with `Xlambda -l examples/definitions.scm`
 
 See the following sections for more details of future plans.
 
@@ -84,11 +98,11 @@ the less "frozen" it is, and the more versatile it becomes.
 * V1 `(current version)`
 Ship with basic functionality, but enough to program whatever window layouts are imaginable,
 due to `(wm/teleport!)`
-* V2
-Ship with more example functions, namely, various examples of tiling functions.
-* V3
+* V2 `(work in progress)`
 Implement event watching support (and mouse support)
 By this point, Xlambda should be easily usable as a standalone window manager.
+* V3
+Ship with more example functions, namely, various examples of tiling functions.
 * V4
 Start using a remote REPL, so Xlambda would be a daemon, controllable by any Guile instance.
 * ...

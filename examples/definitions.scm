@@ -1,39 +1,39 @@
-(define root-wid (car (wm/list-windows)))
-(define screen-width (wm/window/w root-wid))
-(define screen-height (wm/window/h root-wid))
+; let-values and let*-values
+(use-modules (srfi srfi-11))
+
+(define root-wid (car (window/list)))
+(define-values
+  (screen-x ; these don't make much sense, but as far as I know
+   screen-y ; you can't go without binding values
+   screen-width
+   screen-height)
+  (window/geometry? root-wid))
+
 (define border-width 1)
-(define gap-size 16)
+(define gap-size     16)
 
-(define wm/fullscreen-current!
-  (lambda ()
-    (wm/teleport!
-      (wm/get-focused)
-      0 ; x coordinate
-      0 ; y coordinate
-      (- screen-width  (* 2 border-width))
-      (- screen-height (* 2 border-width)))))
+(define (window/fullscreen! wid)
+  (window/teleport! wid
+    0 ; x coordinate
+    0 ; y coordinate
+    (- screen-width  (* 2 border-width))
+    (- screen-height (* 2 border-width))))
 
-(define wm/corner-top-left!
-  (lambda ()
-    (let [(wid (wm/get-focused))]
-      (wm/teleport!
-        wid
-        gap-size
-        gap-size
-        (wm/window/w wid)
-        (wm/window/h wid)))))
+(define (window/corner-top-left! wid)
+  (let*-values ([cur (window/current-id?)]
+                [(x y w h) (window/geometry? wid)])
+    (window/teleport! cur
+                      gap-size gap-size w h)))
 
-(define wm/corner-top-right!
-  (lambda ()
-    (let* [(wid (wm/get-focused))
-           (window-width  (wm/window/w wid))
-           (window-height (wm/window/h wid))]
-      (wm/teleport!
-        wid
-        (- screen-width window-width gap-size)
-        gap-size
-        window-width
-        window-height))))
+(define (window/corner-top-right! wid)
+  (let*-values ([(x y w h) (window/geometry? wid)])
+    (window/teleport! wid
+      (- screen-width w gap-size) gap-size w h)))
+
+(define (window/double-gap-top-left! wid)
+  (let-values ([(x y w h) (window/geometry? wid)])
+    (window/teleport! wid
+      (* 2 x) (* 2 y) w h)))
 
 ; Even further abstractions can be built, these are just simple
 ; examples of how powerful and legible window management with Scheme can be.

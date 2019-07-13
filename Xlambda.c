@@ -13,48 +13,65 @@ xcb_connection_t *conn;
 xcb_screen_t     *scrn;
 
 /* Function prototypes */
-static SCM wm_list_windows();
-static SCM wm_exists_p(SCM wid);
-static SCM wm_get_focused_window();
-static SCM wm_set_focused_window(SCM s_wid);
-static SCM wm_set_border(SCM s_wid, SCM s_width, SCM s_color);
-static SCM wm_get_cursor_pos();
-static SCM wm_set_cursor_pos(SCM s_x, SCM s_y);
-static SCM wm_teleport(SCM wid, SCM x, SCM y, SCM width, SCM s_height);
+static SCM window_get_list();
+static SCM window_exists_p(SCM wid);
+static SCM window_get_title(SCM s_wid);
 
-static SCM wm_window_map(SCM s_wid, SCM s_mode);
-static SCM wm_window_unmap(SCM s_wid, SCM s_mode);
+static SCM window_get_border_width(SCM s_wid);
+/* static SCM window_set_border(SCM s_wid, SCM s_width, SCM s_color); */
 
-static SCM wm_window_x(SCM s_wid);
-static SCM wm_window_y(SCM s_wid);
-static SCM wm_window_w(SCM s_wid);
-static SCM wm_window_h(SCM s_wid);
-static SCM wm_window_b(SCM s_wid);
-static SCM wm_window_m(SCM s_wid);
-static SCM wm_window_i(SCM s_wid);
+static SCM window_hidden_p(SCM s_wid);
+static SCM window_hide(SCM s_wid);
+static SCM window_show(SCM s_wid);
+
+static SCM window_ignored_p(SCM s_wid);
+static SCM window_ignore(SCM s_wid);
+static SCM window_manage(SCM s_wid);
+
+static SCM window_get_focused_id();
+static SCM window_set_focused_id(SCM s_wid);
+
+static SCM window_get_geometry(SCM s_wid);
+static SCM window_set_geometry(SCM s_wid, SCM s_x, SCM s_y, SCM s_width, SCM s_height);
+
+static SCM cursor_get_position();
+static SCM cursor_set_position(SCM s_x, SCM s_y);
+
 
 static void*
-register_functions (void* data)
+register_functions(void* data)
 {
 /* scheme-name
  * args: required, optional, rest-list,
  * c_name */
-	scm_c_define_gsubr("wm/window/x",        1, 0, 0, &wm_window_x);
-	scm_c_define_gsubr("wm/window/y",        1, 0, 0, &wm_window_y);
-	scm_c_define_gsubr("wm/window/w",        1, 0, 0, &wm_window_w);
-	scm_c_define_gsubr("wm/window/h",        1, 0, 0, &wm_window_h);
-	scm_c_define_gsubr("wm/window/b",        1, 0, 0, &wm_window_b);
-	scm_c_define_gsubr("wm/window/m",        1, 0, 0, &wm_window_m);
-	scm_c_define_gsubr("wm/window/i",        1, 0, 0, &wm_window_i);
-	scm_c_define_gsubr("wm/window/map",      1, 0, 0, &wm_set_focused_window);
-	scm_c_define_gsubr("wm/window/unmap",    1, 0, 0, &wm_set_focused_window);
-	scm_c_define_gsubr("wm/get-focused",     0, 0, 0, &wm_get_focused_window);
-	scm_c_define_gsubr("wm/set-focused!",    1, 0, 0, &wm_set_focused_window);
-	scm_c_define_gsubr("wm/get-cursor-pos",  0, 0, 0, &wm_get_cursor_pos);
-	scm_c_define_gsubr("wm/set-cursor-pos!", 2, 0, 0, &wm_set_cursor_pos);
-	scm_c_define_gsubr("wm/list-windows",    0, 0, 0, &wm_list_windows);
-	scm_c_define_gsubr("wm/exists?",         1, 0, 0, &wm_exists_p);
-	scm_c_define_gsubr("wm/teleport!",       5, 0, 0, &wm_teleport);
+
+	/* Window list info */
+	scm_c_define_gsubr("window/list",           0, 0, 0, &window_get_list);
+	scm_c_define_gsubr("window/exists?",        1, 0, 0, &window_exists_p);
+	scm_c_define_gsubr("window/title?",         1, 0, 0, &window_get_title);
+
+	/* Window attribute getters and setters. */
+	scm_c_define_gsubr("window/border-width?",  1, 0, 0, &window_get_border_width);
+	/* scm_c_define_gsubr("window/set-border!",    3, 0, 0, &window_set_border_width); */
+
+	scm_c_define_gsubr("window/hidden?",        1, 0, 0, &window_hidden_p);
+	scm_c_define_gsubr("window/hide!",          1, 0, 0, &window_hide);
+	scm_c_define_gsubr("window/show!",          1, 0, 0, &window_show);
+
+	scm_c_define_gsubr("window/ignored?",       1, 0, 0, &window_ignored_p);
+	scm_c_define_gsubr("window/ignore!",        1, 0, 0, &window_ignore);
+	scm_c_define_gsubr("window/manage!",        1, 0, 0, &window_manage);
+
+	scm_c_define_gsubr("window/current-id?",    0, 0, 0, &window_get_focused_id);
+	scm_c_define_gsubr("window/focus!",         1, 0, 0, &window_set_focused_id);
+
+	scm_c_define_gsubr("window/geometry?",      1, 0, 0, &window_get_geometry);
+	scm_c_define_gsubr("window/teleport!",      5, 0, 0, &window_set_geometry);
+
+	/* Operations on the mouse cursor. */
+	scm_c_define_gsubr("cursor/position?",      0, 0, 0, &cursor_get_position);
+	scm_c_define_gsubr("cursor/position!",      2, 0, 0, &cursor_set_position);
+
 	return NULL;
 }
 
@@ -83,11 +100,11 @@ main(int argc, char** argv)
 }
 
 /*
- * Returns the list of all existing windows
- * The windows are listed in stacking order, from lower to upper window.
+ * Returns the list of all existing windows.
+ * First, you have the root window ID, and then they're ordered from lower to upper window.
  */
 static SCM
-wm_list_windows()
+window_get_list()
 {
 	xcb_window_t x_window;
 
@@ -102,7 +119,10 @@ wm_list_windows()
 	c = xcb_query_tree(conn, scrn->root);
 	r = xcb_query_tree_reply(conn, c, NULL);
 	if (r == NULL)
-		return SCM_BOOL_F;
+		return SCM_UNDEFINED; /* This is maybe unreached.
+                               * the connection would have failed
+                               * before this happens. */
+
 
 	xcb_window_t *x_window_list = xcb_query_tree_children(r);
 
@@ -119,12 +139,13 @@ wm_list_windows()
 	}
 
 	free(r);
+
 	return s_window_list;
 }
 
 /* Check existence of a window. */
 static SCM
-wm_exists_p(SCM wid)
+window_exists_p(SCM wid)
 {
 	xcb_window_t w = scm_to_uint32(wid);
 
@@ -136,131 +157,14 @@ wm_exists_p(SCM wid)
 
 	if (r == NULL)
 		return SCM_BOOL_F;
-
 	free(r);
+
 	return SCM_BOOL_T;
-}
-
-/* Teleport a window to the given position. */
-static SCM
-wm_teleport(SCM wid, SCM x, SCM y, SCM width, SCM height)
-{
-	xcb_window_t w = scm_to_uint32(wid);
-	uint32_t values[4];
-	uint32_t mask =   XCB_CONFIG_WINDOW_X
-	                | XCB_CONFIG_WINDOW_Y
-	                | XCB_CONFIG_WINDOW_WIDTH
-	                | XCB_CONFIG_WINDOW_HEIGHT;
-	values[0] = scm_to_uint32(x);
-	values[1] = scm_to_uint32(y);
-	values[2] = scm_to_uint32(width);
-	values[3] = scm_to_uint32(height);
-	xcb_configure_window(conn, w, mask, values);
-
-	xcb_flush(conn);
-	return SCM_BOOL_T;
-	/* todo: return old geometry, maybe on version 0.2, so things like
-	fullscreening/returning to old position are easier */
-}
-
-
-/* Get focused window identifier */
-static SCM
-wm_get_focused_window()
-{
-	xcb_get_input_focus_cookie_t c;
-	xcb_get_input_focus_reply_t *r;
-
-	c = xcb_get_input_focus(conn);
-	r = xcb_get_input_focus_reply(conn, c, NULL);
-	if (r == NULL)
-		return SCM_BOOL_F;
-
-	SCM fwid = scm_from_uint32(r->focus);
-	free(r);
-
-	return fwid;
-}
-
-/* Return window's x offset position */
-static SCM
-wm_window_x(SCM s_wid)
-{
-	xcb_window_t wid = scm_to_uint32(s_wid);
-
-	xcb_get_geometry_cookie_t c;
-	xcb_get_geometry_reply_t *r;
-
-	c = xcb_get_geometry(conn, wid);
-	r = xcb_get_geometry_reply(conn, c, NULL);
-	if (r == NULL)
-		return SCM_BOOL_F;
-
-	SCM x = scm_from_int(r->x);
-	free(r);
-	return x;
-}
-
-/* Return window's y offset position */
-static SCM
-wm_window_y(SCM s_wid)
-{
-	xcb_window_t wid = scm_to_uint32(s_wid);
-
-	xcb_get_geometry_cookie_t c;
-	xcb_get_geometry_reply_t *r;
-
-	c = xcb_get_geometry(conn, wid);
-	r = xcb_get_geometry_reply(conn, c, NULL);
-	if (r == NULL)
-		return SCM_BOOL_F;
-
-	SCM y = scm_from_int(r->y);
-	free(r);
-	return y;
-}
-
-/* Return window's width */
-static SCM
-wm_window_w(SCM s_wid)
-{
-	xcb_window_t wid = scm_to_uint32(s_wid);
-
-	xcb_get_geometry_cookie_t c;
-	xcb_get_geometry_reply_t *r;
-
-	c = xcb_get_geometry(conn, wid);
-	r = xcb_get_geometry_reply(conn, c, NULL);
-	if (r == NULL)
-		return SCM_BOOL_F;
-
-	SCM w = scm_from_int(r->width);
-	free(r);
-	return w;
-}
-
-/* Return window's height */
-static SCM
-wm_window_h(SCM s_wid)
-{
-	xcb_window_t wid = scm_to_uint32(s_wid);
-
-	xcb_get_geometry_cookie_t c;
-	xcb_get_geometry_reply_t *r;
-
-	c = xcb_get_geometry(conn, wid);
-	r = xcb_get_geometry_reply(conn, c, NULL);
-	if (r == NULL)
-		return SCM_BOOL_F;
-
-	SCM h = scm_from_int(r->height);
-	free(r);
-	return h;
 }
 
 /* Return window's border width */
 static SCM
-wm_window_b(SCM s_wid)
+window_get_border_width(SCM s_wid)
 {
 	xcb_window_t wid = scm_to_uint32(s_wid);
 
@@ -274,12 +178,45 @@ wm_window_b(SCM s_wid)
 
 	SCM b = scm_from_int(r->border_width);
 	free(r);
+
 	return b;
 }
 
-/* Return window's mapped status */
+/* Get a window's title */
 static SCM
-wm_window_m(SCM s_wid)
+window_get_title(SCM s_wid)
+{
+	xcb_window_t wid = scm_to_uint32(s_wid);
+
+	xcb_get_property_cookie_t cookie;
+	xcb_get_property_reply_t *r;
+
+	cookie = xcb_get_property(conn, 0, wid,
+			XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 0L, 32L);
+	r = xcb_get_property_reply(conn, cookie, NULL);
+
+
+	int title_len = 0;
+	SCM t = scm_list_2(s_wid, SCM_UNDEFINED);
+
+	if (r) {
+		title_len = xcb_get_property_value_length(r);
+		if (!title_len)
+			return scm_list_2(s_wid, SCM_BOOL_F);
+
+		char *title = xcb_get_property_value(r);
+		free(r);
+
+		SCM s_title = scm_from_utf8_string(title);
+		t = scm_list_2(s_wid, s_title);
+	}
+
+	return t;
+}
+
+/* Return whether a window is hidden or not. */
+static SCM
+window_hidden_p(SCM s_wid)
 {
 	xcb_window_t wid = scm_to_uint32(s_wid);
 
@@ -289,37 +226,54 @@ wm_window_m(SCM s_wid)
 	c = xcb_get_window_attributes(conn, wid);
 	r = xcb_get_window_attributes_reply(conn, c, NULL);
 	if (r == NULL)
-		return SCM_BOOL_F;
+		return SCM_UNDEFINED;
 
-	SCM m = scm_from_int(r->map_state);
+	SCM m = SCM_UNDEFINED;
+	switch (r->map_state) {
+	case 0: /* Unmapped */
+		m = SCM_BOOL_T;
+		break;
+	case 1: /* Unviewable */
+		m = SCM_BOOL_T;
+		break;
+	case 2: /* Viewable */
+		m = SCM_BOOL_F;
+		break;
+	default: /* Fallthrough */
+		m = SCM_UNDEFINED;
+	}
 	free(r);
+
 	return m;
 }
 
-/* Return whether a window should be ignored or not */
+/* Hide a window */
 static SCM
-wm_window_i(SCM s_wid)
+window_hide(SCM s_wid)
 {
 	xcb_window_t wid = scm_to_uint32(s_wid);
 
-	xcb_get_window_attributes_cookie_t c;
-	xcb_get_window_attributes_reply_t *r;
+	xcb_unmap_window(conn, wid);
 
-	c = xcb_get_window_attributes(conn, wid);
-	r = xcb_get_window_attributes_reply(conn, c, NULL);
-	if (r == NULL)
-		return SCM_BOOL_F; /* this is probably the root window
-                           * in any case, it shouldn't be handled. */
+	xcb_flush(conn);
+	return scm_list_2(s_wid, SCM_BOOL_F);
+}
 
-	SCM i = scm_from_bool(r->override_redirect);
+/* Show a window */
+static SCM
+window_show(SCM s_wid)
+{
+	xcb_window_t wid = scm_to_uint32(s_wid);
 
-	free(r);
-	return i;
+	xcb_map_window(conn, wid);
+
+	xcb_flush(conn);
+	return scm_list_2(s_wid, SCM_BOOL_T);
 }
 
 /* Get the cursor position, and return its coordinates as (x y) */
 static SCM
-wm_get_cursor_pos()
+cursor_get_position()
 {
 	xcb_query_pointer_reply_t *r;
 	xcb_query_pointer_cookie_t c;
@@ -330,7 +284,6 @@ wm_get_cursor_pos()
 		return SCM_BOOL_F;
 
 	SCM xypos;
-
 	if (r->child != XCB_NONE) {
 		xypos = scm_list_2(scm_from_uint16(r->win_x), scm_from_uint16(r->win_y));
 	} else {
@@ -338,89 +291,128 @@ wm_get_cursor_pos()
 	}
 
 	free(r);
-	return xypos;
+	return scm_values(xypos);
 }
 
-
-/* Set a window's border.
- * The color should be a hexadecimal number, eg: "#xffffff" */
+/* Set the cursor position. */
 static SCM
-wm_set_border(SCM s_wid, SCM s_width, SCM s_color)
-{
-	xcb_window_t wid = scm_to_uint32(s_wid);
-	int width = scm_to_int32(s_wid);
-	int color = scm_to_int32(s_color);
-
-	uint32_t values[1];
-	int mask, retval = 0;
-
-	/* change width if > 0 */
-	if (width > -1) {
-		values[0] = width;
-		mask = XCB_CONFIG_WINDOW_BORDER_WIDTH;
-		xcb_configure_window(conn, wid, mask, values);
-		retval++;
-	}
-
-	/* change color if > 0 */
-	if (color > -1) {
-		values[0] = color;
-		mask = XCB_CW_BORDER_PIXEL;
-		xcb_change_window_attributes(conn, wid, mask, values);
-		retval++;
-	}
-
-	xcb_flush(conn);
-	return scm_from_int(retval);
-}
-
-/* Change the cursor position. */
-static SCM
-wm_set_cursor_pos(SCM s_x, SCM s_y)
+cursor_set_position(SCM s_x, SCM s_y)
 {
 	int x = scm_to_int(s_x);
 	int y = scm_to_int(s_y);
+
 	xcb_warp_pointer(conn, XCB_NONE, scrn->root, 0, 0, 0, 0, x, y);
-	return SCM_BOOL_T;
+	xcb_flush(conn);
+
+	return scm_values(scm_list_2(s_x, s_y));
 }
 
+/* Set a window's border.
+ * The color should be a hexadecimal number, eg: "#xffffff" */
+/* static SCM */
+/* window_set_border(SCM s_wid, SCM s_width, SCM s_color) */
+/* { */
+/* 	xcb_window_t wid = scm_to_uint32(s_wid); */
+/* 	int width = scm_to_int32(s_wid); */
+/* 	int color = scm_to_int32(s_color); */
+
+/* 	uint32_t values[1]; */
+/* 	int mask, retval = 0; */
+
+/* TODO: use Guile's optional arguments, instead of this */
+/* 	/1* change width if > 0 *1/ */
+/* 	if (width > -1) { */
+/* 		values[0] = width; */
+/* 		mask = XCB_CONFIG_WINDOW_BORDER_WIDTH; */
+/* 		xcb_configure_window(conn, wid, mask, values); */
+/* 		retval++; */
+/* 	} */
+
+/* 	/1* change color if > 0 *1/ */
+/* 	if (color > -1) { */
+/* 		values[0] = color; */
+/* 		mask = XCB_CW_BORDER_PIXEL; */
+/* 		xcb_change_window_attributes(conn, wid, mask, values); */
+/* 		retval++; */
+/* 	} */
+
+/* 	xcb_flush(conn); */
+/* 	return scm_from_int(retval); */
+/* } */
+
+/* Return whether a given window should be ignored by Xlambda or not */
 static SCM
-wm_set_override(SCM s_wid, SCM s_mode)
+window_ignored_p(SCM s_wid)
 {
 	xcb_window_t wid = scm_to_uint32(s_wid);
-	int mode = scm_to_int(s_mode);
+
+	xcb_get_window_attributes_cookie_t c;
+	xcb_get_window_attributes_reply_t *r;
+
+	c = xcb_get_window_attributes(conn, wid);
+	r = xcb_get_window_attributes_reply(conn, c, NULL);
+	if (r == NULL)
+		return SCM_UNDEFINED; /* this is probably the root window
+                               * in any case, it shouldn't be handled. */
+
+    /* override_redirect is 0 when the window shouldn't be handled by Xlambda
+     * and it's 1 otherwise. scm_from_bool returns #f on the first case, and #t
+     * for the latter, so it's fine to just that here. */
+	SCM i = scm_from_bool(r->override_redirect);
+
+	free(r);
+	return i;
+}
+
+/* Unignore a window */
+static SCM
+window_manage(SCM s_wid)
+{
+	xcb_window_t wid = scm_to_uint32(s_wid);
 
 	uint32_t mask = XCB_CW_OVERRIDE_REDIRECT;
-	uint32_t val[] = { mode };
+	uint32_t val[] = { 0 };
 
 	xcb_change_window_attributes(conn, wid, mask, val);
 
-	return SCM_BOOL_T;
+	return scm_list_2(s_wid, SCM_BOOL_F);
 }
 
-/* Map a window */
+/* Ignore a window */
 static SCM
-wm_window_map(SCM s_wid, SCM s_mode)
-{
- 	xcb_window_t wid = scm_to_uint32(s_wid);
-	xcb_map_window(conn, wid);
-	xcb_flush(conn);
-	return scm_list_2(s_wid, SCM_BOOL_T);
-}
-
-/* Unmap a window */
-static SCM
-wm_window_unmap(SCM s_wid, SCM s_mode)
+window_ignore(SCM s_wid)
 {
 	xcb_window_t wid = scm_to_uint32(s_wid);
-	xcb_unmap_window(conn, wid);
-	xcb_flush(conn);
+
+	uint32_t mask = XCB_CW_OVERRIDE_REDIRECT;
+	uint32_t val[] = { 1 };
+
+	xcb_change_window_attributes(conn, wid, mask, val);
+
 	return scm_list_2(s_wid, SCM_BOOL_T);
+}
+
+/* Get focused window identifier */
+static SCM
+window_get_focused_id()
+{
+	xcb_get_input_focus_cookie_t c;
+	xcb_get_input_focus_reply_t *r;
+
+	c = xcb_get_input_focus(conn);
+	r = xcb_get_input_focus_reply(conn, c, NULL);
+	if (r == NULL)
+		return SCM_BOOL_F;
+
+	SCM f_wid = scm_from_uint32(r->focus);
+	free(r);
+
+	return f_wid;
 }
 
 /* Give the input focus to the specified window */
 static SCM
-wm_set_focused_window(SCM s_wid)
+window_set_focused_id(SCM s_wid)
 {
 	xcb_window_t wid = scm_to_uint32(s_wid);
 	xcb_set_input_focus(conn, XCB_INPUT_FOCUS_POINTER_ROOT, wid,
@@ -428,5 +420,51 @@ wm_set_focused_window(SCM s_wid)
 	/* Bring window to the front */
 	xcb_configure_window(conn, wid, XCB_STACK_MODE_ABOVE, 0);
 	xcb_flush(conn);
-	return SCM_BOOL_T;
+	return scm_list_2(s_wid, SCM_BOOL_T);
+}
+
+/* Return window's geometry. */
+static SCM
+window_get_geometry(SCM s_wid)
+{
+	xcb_window_t wid = scm_to_uint32(s_wid);
+
+	xcb_get_geometry_cookie_t c;
+	xcb_get_geometry_reply_t *r;
+
+	c = xcb_get_geometry(conn, wid);
+	r = xcb_get_geometry_reply(conn, c, NULL);
+	if (r == NULL)
+		return SCM_BOOL_F;
+
+	SCM x = scm_from_int16(r->x);
+	SCM y = scm_from_int16(r->y);
+	SCM w = scm_from_uint16(r->width);
+	SCM h = scm_from_uint16(r->height);
+	free(r);
+
+	return scm_values(scm_list_4(x, y, w, h));
+}
+
+/* Set a window's geometry. */
+static SCM
+window_set_geometry(SCM s_wid, SCM s_x, SCM s_y, SCM s_width, SCM s_height)
+{
+	xcb_window_t wid = scm_to_uint32(s_wid);
+
+	uint32_t mask =   XCB_CONFIG_WINDOW_X
+	                | XCB_CONFIG_WINDOW_Y
+	                | XCB_CONFIG_WINDOW_WIDTH
+	                | XCB_CONFIG_WINDOW_HEIGHT;
+
+	uint32_t values[4];
+	values[0] = scm_to_uint32(s_x);
+	values[1] = scm_to_uint32(s_y);
+	values[2] = scm_to_uint32(s_width);
+	values[3]= scm_to_uint32(s_height);
+
+	xcb_configure_window(conn, wid, mask, values);
+
+	xcb_flush(conn);
+	return scm_values(scm_list_4(s_x, s_y, s_width, s_height));
 }
