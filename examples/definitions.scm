@@ -1,12 +1,10 @@
-; let-values and let*-values
-(use-modules (srfi srfi-11))
+(use-modules (srfi srfi-11)) ; let-values and let*-values
 
 (define root-wid (car (window/list)))
-(define-values
-  (screen-x ; these don't make much sense, but as far as I know
-   screen-y ; you can't go without binding values
-   screen-width
-   screen-height)
+(define-values (screen-x ; these don't make much sense, but as far as I know
+                screen-y ; you can't go without binding values
+                screen-width
+                screen-height)
   (window/geometry? root-wid))
 
 (define border-width 1)
@@ -20,10 +18,9 @@
     (- screen-height (* 2 border-width))))
 
 (define (window/corner-top-left! wid)
-  (let*-values ([cur (window/current-id?)]
-                [(x y w h) (window/geometry? wid)])
-    (window/teleport! cur
-                      gap-size gap-size w h)))
+  (let*-values ([(x y w h) (window/geometry? wid)])
+    (window/teleport! wid
+      gap-size gap-size w h)))
 
 (define (window/corner-top-right! wid)
   (let*-values ([(x y w h) (window/geometry? wid)])
