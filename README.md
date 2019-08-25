@@ -100,6 +100,12 @@ Ship with basic functionality, but enough to program whatever window layouts are
 due to `(wm/teleport!)`
 * V2 `(work in progress)`
 Implement event watching support (and mouse support)
+This took a long time in between versions because I was trying to rewrite Xlambda in pure guile, using guile-xcb.
+
+That won't work for now. That's fine.
+
+I'm gonna use libuv for the async aspects, for now.
+
 By this point, Xlambda should be easily usable as a standalone window manager.
 * V3
 Ship with more example functions, namely, various examples of tiling functions.
