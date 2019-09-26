@@ -18,7 +18,7 @@ static SCM window_exists_p(SCM wid);
 static SCM window_get_title(SCM s_wid);
 
 static SCM window_get_border_width(SCM s_wid);
-/* static SCM window_set_border(SCM s_wid, SCM s_width, SCM s_color); */
+static SCM window_set_border(SCM s_wid, SCM s_width, SCM s_color);
 
 static SCM window_hidden_p(SCM s_wid);
 static SCM window_hide(SCM s_wid);
@@ -37,7 +37,6 @@ static SCM window_set_geometry(SCM s_wid, SCM s_x, SCM s_y, SCM s_width, SCM s_h
 static SCM cursor_get_position();
 static SCM cursor_set_position(SCM s_x, SCM s_y);
 
-
 static void*
 register_functions(void* data)
 {
@@ -52,7 +51,7 @@ register_functions(void* data)
 
 	/* Window attribute getters and setters. */
 	scm_c_define_gsubr("window/border-width?",  1, 0, 0, &window_get_border_width);
-	/* scm_c_define_gsubr("window/set-border!",    3, 0, 0, &window_set_border_width); */
+	scm_c_define_gsubr("window/set-border!",    2, 1, 0, &window_set_border);
 
 	scm_c_define_gsubr("window/hidden?",        1, 0, 0, &window_hidden_p);
 	scm_c_define_gsubr("window/hide!",          1, 0, 0, &window_hide);
@@ -309,36 +308,34 @@ cursor_set_position(SCM s_x, SCM s_y)
 
 /* Set a window's border.
  * The color should be a hexadecimal number, eg: "#xffffff" */
-/* static SCM */
-/* window_set_border(SCM s_wid, SCM s_width, SCM s_color) */
-/* { */
-/* 	xcb_window_t wid = scm_to_uint32(s_wid); */
-/* 	int width = scm_to_int32(s_wid); */
-/* 	int color = scm_to_int32(s_color); */
+static SCM
+window_set_border(SCM s_wid, SCM s_width, SCM s_color)
+{
+	xcb_window_t wid = scm_to_uint32(s_wid);
+	uint32_t width = scm_to_uint32(s_width);
+	uint32_t color;
 
-/* 	uint32_t values[1]; */
-/* 	int mask, retval = 0; */
+	uint32_t values[1];
+  int mask = 0;
+	int retval = 1;
 
-/* TODO: use Guile's optional arguments, instead of this */
-/* 	/1* change width if > 0 *1/ */
-/* 	if (width > -1) { */
-/* 		values[0] = width; */
-/* 		mask = XCB_CONFIG_WINDOW_BORDER_WIDTH; */
-/* 		xcb_configure_window(conn, wid, mask, values); */
-/* 		retval++; */
-/* 	} */
+	/* Set window border width */
+	values[0] = width;
+	mask = XCB_CONFIG_WINDOW_BORDER_WIDTH;
+	xcb_configure_window(conn, wid, mask, values);
 
-/* 	/1* change color if > 0 *1/ */
-/* 	if (color > -1) { */
-/* 		values[0] = color; */
-/* 		mask = XCB_CW_BORDER_PIXEL; */
-/* 		xcb_change_window_attributes(conn, wid, mask, values); */
-/* 		retval++; */
-/* 	} */
+	/* Optionally set color of window border */
+	if (s_color != SCM_UNDEFINED) {
+		color = scm_to_uint32(s_color);
+		values[0] = color;
+		mask = XCB_CW_BORDER_PIXEL;
+		xcb_change_window_attributes(conn, wid, mask, values);
+		retval++;
+	}
 
-/* 	xcb_flush(conn); */
-/* 	return scm_from_int(retval); */
-/* } */
+	xcb_flush(conn);
+	return scm_from_int(retval);
+}
 
 /* Return whether a given window should be ignored by Xlambda or not */
 static SCM
