@@ -5,13 +5,6 @@
 #include <libguile.h>
 #include <xcb/xcb.h>
 
-/*
- * Variables used to hold the connection to the X server,
- * and the first screen of this connection.
- */
-xcb_connection_t *conn;
-xcb_screen_t     *scrn;
-
 /* Function prototypes */
 static SCM window_get_list();
 static SCM window_exists_p(SCM wid);
@@ -74,6 +67,13 @@ register_functions(void* data)
 	return NULL;
 }
 
+/*
+ * Variables used to hold the connection to the X server,
+ * and the first screen of this connection.
+ */
+xcb_connection_t *conn;
+xcb_screen_t     *scrn;
+
 int
 main(int argc, char** argv)
 {
@@ -107,15 +107,12 @@ window_get_list()
 {
 	xcb_window_t x_window;
 
-	SCM s_root_wid = scm_from_uint32(scrn->root);
-
-	/* Initialize the window list with the root window ID */
-	SCM s_window_list = scm_list_1(s_root_wid);
-
 	xcb_query_tree_cookie_t c;
 	xcb_query_tree_reply_t *r;
 
-	c = xcb_query_tree(conn, scrn->root);
+	uint32_t root_wid = scrn->root;
+
+	c = xcb_query_tree(conn, root_wid);
 	r = xcb_query_tree_reply(conn, c, NULL);
 	if (r == NULL)
 		return SCM_UNDEFINED; /* This is maybe unreached.
@@ -124,6 +121,10 @@ window_get_list()
 
 
 	xcb_window_t *x_window_list = xcb_query_tree_children(r);
+
+	/* Initialize the window list with the root window ID */
+	SCM s_root_wid = scm_from_uint32(root_wid);
+	SCM s_window_list = scm_list_1(s_root_wid);
 
 	/* wi = window index */
 	/* children_len - 1 is due to the fact that the wids are in stacking order,
